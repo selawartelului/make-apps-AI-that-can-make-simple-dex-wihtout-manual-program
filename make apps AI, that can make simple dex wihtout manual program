@@ -1,0 +1,62 @@
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract AIDEXBuilder {
+
+    address public owner;
+
+    struct DEXConfig {
+        address tokenA;
+        address tokenB;
+        uint256 fee;
+        string dexName;
+        bool active;
+    }
+
+    DEXConfig public config;
+
+    event DEXCreated(
+        string name,
+        address tokenA,
+        address tokenB,
+        uint256 fee
+    );
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function createDEX(
+        string memory _name,
+        address _tokenA,
+        address _tokenB,
+        uint256 _fee
+    ) external {
+        require(msg.sender == owner, "Not owner");
+        require(_tokenA != address(0), "Invalid token A");
+        require(_tokenB != address(0), "Invalid token B");
+        require(_tokenA != _tokenB, "Same token");
+        require(_fee <= 1000, "Fee too high");
+
+        config = DEXConfig({
+            tokenA: _tokenA,
+            tokenB: _tokenB,
+            fee: _fee,
+            dexName: _name,
+            active: true
+        });
+
+        emit DEXCreated(
+            _name,
+            _tokenA,
+            _tokenB,
+            _fee
+        );
+    }
+
+    function deactivateDEX() external {
+        require(msg.sender == owner, "Not owner");
+        config.active = false;
+    }
+}
